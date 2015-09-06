@@ -55,9 +55,7 @@ lots of money.
 
 Large changes should have a test plan, and should be tested by somebody other
 than the developer who wrote the code.
-Creating a thread in the [Moneta discussion forum](https://monetatalk.org/index.php?board=2.0) will allow the Moneta
-development team members to review your proposal and to provide assistance with creating a test plan. 
-
+See https://github.com/moneta/QA/ for how to create a test plan.
 
 Translations
 ------------
@@ -67,6 +65,47 @@ pull from Transifex would automatically overwrite them again.
 
 We only accept translation fixes that are submitted through [Moneta Core's Transifex page](https://www.transifex.com/projects/p/moneta/).
 Translations are converted to Moneta periodically.
+
+First install
+-------------
+
+### Swap file 2048k
+
+    $ sudo install -o root -g root -m 0600 /dev/null /swapfile
+
+    $ dd if=/dev/zero of=/swapfile bs=1k count=2048k
+
+    $ mkswap /swapfile
+
+    $ swapon /swapfile
+
+    $ echo "/swapfile       swap    swap    auto      0       0" | sudo tee -a /etc/fstab
+
+    $ sudo sysctl -w vm.swappiness=10
+
+    $ echo vm.swappiness = 10 | sudo tee -a /etc/sysctl.conf
+
+**Unix terminal**
+
+    $ sudo apt-get install build-essential
+
+    $ sudo apt-get install libssl-dev
+
+    $ sudo apt-get install libminiupnpc-dev (see USE_UPNP compile flag)
+
+    $ sudo apt-get install libqt4-dev libprotobuf-dev protobuf-compiler
+
+    $ sudo apt-get install build-essential libboost-all-dev libcurl4-openssl-dev libdb5.1-dev libdb5.1++-dev git qt-sdk libminiupnpc-dev libtool
+
+    $ sudo apt-get install libqrencode-dev
+
+    $ git clone https://github.com/moneta-project/moneta
+
+    $ cd moneta
+
+    $ bash ./autogen.sh
+
+    $ bash ./make.sh
 
 Development tips and tricks
 ---------------------------
@@ -102,3 +141,9 @@ Moneta Core is a multithreaded application, and deadlocks or other multithreadin
 can be very difficult to track down. Compiling with -DDEBUG_LOCKORDER (configure
 CXXFLAGS="-DDEBUG_LOCKORDER -g") inserts run-time checks to keep track of which locks
 are held, and adds warnings to the debug.log file if inconsistencies are detected.
+
+Tricks
+------
+    $ sudo apt-get install libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler
+    $ sudo apt-get install libqt4-dev libprotobuf-dev protobuf-compiler
+
