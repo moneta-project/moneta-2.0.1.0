@@ -1,0 +1,27 @@
+# /etc/conf.d/monetad: config file for /etc/init.d/monetad
+
+# Config file location
+#MONETAD_CONFIGFILE="/etc/moneta/moneta.conf"
+
+# What directory to write pidfile to?  (created and owned by $MONETAD_USER)
+#MONETAD_PIDDIR="/var/run/monetad"
+
+# What filename to give the pidfile
+#MONETAD_PIDFILE="${MONETAD_PIDDIR}/monetad.pid"
+
+# Where to write monetad data (be mindful that the blockchain is large)
+#MONETAD_DATADIR="/var/lib/monetad"
+
+# User and group to own monetad process
+#MONETAD_USER="moneta"
+#MONETAD_GROUP="moneta"
+
+# Path to monetad executable
+#MONETAD_BIN="/usr/bin/monetad"
+
+# Nice value to run monetad under
+#MONETAD_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+MONETAD_OPTS="-disablewallet"
+

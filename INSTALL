@@ -1,0 +1,5 @@
+Building Moneta
+
+See doc/build-*.md for instructions on building monetad,
+the intended-for-services, no-graphical-interface, reference
+implementation of Moneta.

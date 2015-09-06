@@ -1,0 +1,86 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/moneta/.moneta" ]; then
+	MONETAD_DEFAULT_DATADIR="/var/lib/moneta/.moneta"
+else
+	MONETAD_DEFAULT_DATADIR="/var/lib/monetad"
+fi
+
+MONETAD_CONFIGFILE=${MONETAD_CONFIGFILE:-/etc/moneta/moneta.conf}
+MONETAD_PIDDIR=${MONETAD_PIDDIR:-/var/run/monetad}
+MONETAD_PIDFILE=${MONETAD_PIDFILE:-${MONETAD_PIDDIR}/monetad.pid}
+MONETAD_DATADIR=${MONETAD_DATADIR:-${MONETAD_DEFAULT_DATADIR}}
+MONETAD_USER=${MONETAD_USER:-moneta}
+MONETAD_GROUP=${MONETAD_GROUP:-moneta}
+MONETAD_BIN=${MONETAD_BIN:-/usr/bin/monetad}
+
+name="Moneta Core Daemon"
+description="Moneta crypto-currency p2p network daemon"
+
+command="/usr/bin/monetad"
+command_args="-pid=\"${MONETAD_PIDFILE}\" \
+		-conf=\"${MONETAD_CONFIGFILE}\" \
+		-datadir=\"${MONETAD_DATADIR}\" \
+		-daemon \
+		${MONETAD_OPTS}"
+
+required_files="${MONETAD_CONFIGFILE}"
+start_stop_daemon_args="-u ${MONETAD_USER} \
+			-N ${MONETAD_NICE:-0} -w 2000"
+pidfile="${MONETAD_PIDFILE}"
+retry=60
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${MONETAD_USER}:${MONETAD_GROUP}" \
+	"${MONETAD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${MONETAD_USER}:${MONETAD_GROUP}" \
+	"${MONETAD_PIDDIR}"
+
+	checkpath -f \
+	-o ${MONETAD_USER}:${MONETAD_GROUP} \
+	-m 0660 \
+	${MONETAD_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${MONETAD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run monetad."
+		eerror "The setting must appear in ${MONETAD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following"
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is also recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Moneta Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}
